@@ -1,7 +1,7 @@
 
 
-#include "Notebook.hpp"
-#include "Direction.hpp"
+#include "sources/Notebook.hpp"
+#include "sources/Direction.hpp"
 using ariel::Direction;
 using namespace ariel;
 
@@ -11,33 +11,86 @@ using namespace std;
 
 int main() {
     Notebook nb;
-    nb.write(0, 0, 0, Direction::Horizontal, "Yo, listen up heres a story");
-    nb.write(0, 1, 0, Direction::Horizontal, "About a little guy");
-    nb.write(0, 2, 0, Direction::Horizontal, "That lives in a blue world");
-    nb.write(0, 3, 0, Direction::Horizontal, "And all day and all night");
-    nb.write(0, 4, 0, Direction::Horizontal, "And everything he sees is just blue");
-    nb.write(0, 5, 0, Direction::Horizontal, "Like him inside and outside");
-    nb.write(1, 0, 0, Direction::Horizontal, "Blue his house");
-    nb.write(1, 1, 0, Direction::Horizontal, "With a blue little window");
-    nb.write(1, 2, 0, Direction::Horizontal, "And a blue corvette");
-    nb.write(1, 3, 0, Direction::Horizontal, "And everything is blue for him");
-    nb.write(1, 4, 0, Direction::Horizontal, "And himself and everybody around");
-    nb.write(1, 5, 0, Direction::Horizontal, "Cause he ain't got nobody to listen to");
-    nb.write(2, 0, 0, Direction::Horizontal, "I'm blue");
-    nb.write(2, 1, 0, Direction::Horizontal, "Da ba dee da ba di");
-    nb.write(2, 2, 0, Direction::Horizontal, "Da ba dee da ba di");
+    char func;
+    int page;
+    unsigned int row;
+    unsigned int col;
+    string toWrite;
+    unsigned int length;
+    char dir;
+    
+    while (true) {
+        func = 0;
+        cout << "To write enter 'w', to read enter 'r', to erase enter 'e', to show a specific page enter 's', to exit enter 'q': " << endl;
+        cin >> func;
 
-    nb.show(0);
+        if (func == 'q') {
+            break;
+        }
 
-    nb.show(1);
+        cout << "Enter page number (0 or positive number): " << endl;
+        cin >> page;
 
-    nb.show(2);
+        if (func == 's') {
+            nb.show(page);
+            continue;
+        }
+        
+        cout << "Enter row number (0 or positive number): " << endl;
+        cin >> row;
+        cout << "Enter column number (0 or positive number): " << endl;
+        cin >> col;
+        cout << "To write horizontally enter 'h', for vertically enter 'v': " << endl;
+        cin >> dir;
 
-    nb.write(2, 2, 0, Direction::Horizontal, "ddadadadad");
-    nb.show(2);
+        if (func == 'w') {
+            cout << "Enter exactly what you want to write: " << endl;
+            toWrite = "";
+            while (toWrite == "") {
+                getline(cin, toWrite);
+            }
+            try {
+                if (dir == 'h') {
+                    nb.write(page, row, col, Direction::Horizontal, toWrite);
+                }
+                if (dir == 'v') {
+                    nb.write(page, row, col, Direction::Vertical, toWrite);
+                }
+            } catch (exception &ex) {
+                cout << "caught exception: " << ex.what() << endl;
+            }
+        }
 
-    nb.write(3, 0, 90, Direction::Horizontal, "writing this will result in line being longer then 100");
-    nb.show(3);
+        if (func == 'r') {
+            cout << "Enter the length you want to read: " << endl;
+            cin >> length;
+            try {
+                if (dir == 'h') {
+                    cout << endl << nb.read(page, row, col, Direction::Horizontal, length);
+                }
+                if (dir == 'v') {
+                    cout << endl << nb.read(page, row, col, Direction::Vertical, length);
+                }
+            } catch (exception &ex) {
+                cout << "caught exception: " << ex.what() << endl;
+            }
+        }
+
+        if (func == 'e') {
+            cout << "Enter the length you want to erase: " << endl;
+            cin >> length;
+            try {
+                if (dir == 'h') {
+                    nb.erase(page, row, col, Direction::Horizontal, length);
+                }
+                if (dir == 'v') {
+                    nb.erase(page, row, col, Direction::Vertical, length);
+                }
+            } catch (exception &ex) {
+                cout << "caught exception: " << ex.what() << endl;
+            }
+        }
+    }
 }
     
 
