@@ -39,17 +39,18 @@ namespace ariel {
             std::string readAt(const unsigned int row, const unsigned int col, Direction dir, const unsigned int toRead);
             void printPage();
             unsigned int size();
+            void resize(const unsigned int row, const unsigned int col, Direction dir, const unsigned int length);
     };
 
     class Notebook {
         private:
-            std::vector<Page> pages;
+            std::vector<Page> notebook;
         public:
             void write(const unsigned int page, const unsigned int row, const unsigned int col, Direction dir, const std::string &toWrite);
             void erase(const unsigned int page, const unsigned int row, const unsigned int col, Direction dir, const unsigned int toErase);
             std::string read(const unsigned int page, const unsigned int row, const unsigned int col, Direction dir, const unsigned int toRead);
             void show(const unsigned int page);
-            
+            void resize(const unsigned int page);
             void check_errors(const unsigned int page, const unsigned int row, const unsigned int col, Direction dir, const std::string &toWrite,
              const unsigned int length, NotebookThrows func);
     };
