@@ -8,6 +8,8 @@ using namespace std;
 unsigned int const MAXROWLENGTH = 100;
 char const EMPTYSPACE = '_';
 char const DELETE = '~';
+int const MIN_CHAR = 32;
+int const MAX_CHAR = 126;
 
 /*------------------------------ Class Row -----------------------------------------
 Initiallize a vector of chars to size 100 each spot with that char '_'.
@@ -143,32 +145,43 @@ void Page::resize(const unsigned int row, const unsigned int col, Direction dir,
 
 //---------------------------- Class Notebook---------------------------------
 
-void Notebook::check_errors(const unsigned int page, const unsigned int row, const unsigned int col, Direction dir, const string &toWrite,
-const unsigned int length, NotebookThrows func) {
+void Notebook::check_errors(const int page, const int row, const int col, Direction dir, const string &toWrite,
+const int length, NotebookThrows func) {
+    if (page < 0 or row < 0 or col < 0) {
+        throw out_of_range("Page Row and Col must be 0 or positive");
+    }
     if (col >= MAXROWLENGTH) {
         throw logic_error("Col cannot be greater or equal to 100");
     }
-
+    
     if (func == NotebookThrows::Write) {
+        if (toWrite.find('~') != string::npos) {
+            throw logic_error("Cannot write '~'");
+        }
         if (dir == Direction::Horizontal) {
-            if (col + toWrite.size() >= MAXROWLENGTH) {
+            if ((unsigned int) col + toWrite.size() - 1 >= MAXROWLENGTH) {
                 throw out_of_range("Cannot write more than 100 characters per row");
             }
         }
         string st = this->read(page, row, col, dir, toWrite.size());
         for (unsigned int i = 0; i < toWrite.size(); i++) {
+            // check if we are trying to write over '~' or already written text
             if (st[i] != EMPTYSPACE) {
                 if (st[i] == DELETE) {
                     throw logic_error("Cannot rewrite after erasing");
                 }
                 throw logic_error("Cannot rewrite on written places");
             }
+            // check if toWrite contains invalid characters
+            if ((int) toWrite[i] < MIN_CHAR or (int) toWrite[i] > MAX_CHAR) {
+                throw invalid_argument("Invalid character");
+            }
         }
     }
     
     if (func == NotebookThrows::Read) {
         if (dir == Direction::Horizontal) {
-            if (col + length >= MAXROWLENGTH) {
+            if (col + length - 1 >= MAXROWLENGTH) {
                 throw out_of_range("Cannot read after max row length (100)");
             }
         }   
@@ -176,7 +189,7 @@ const unsigned int length, NotebookThrows func) {
 
     if (func == NotebookThrows::Erase) {
         if (dir == Direction::Horizontal) {
-            if (col + length >= MAXROWLENGTH) {
+            if (col + length - 1 >= MAXROWLENGTH) {
                 throw out_of_range("Cannot erase after max row length (100)");
             }
         }      
@@ -189,28 +202,35 @@ void Notebook::resize(const unsigned int page) {
     }
 }
 
-void Notebook::write(const unsigned int page, const unsigned int row, const unsigned int col, Direction dir, const string &toWrite) {
+void Notebook::write(const int page, const int row, const int col, Direction dir, const string &toWrite) {
     Notebook::check_errors(page, row, col, dir, toWrite, 0, NotebookThrows::Write);
-    Notebook::resize(page);
-    notebook[page].writeAt(row, col, dir, toWrite);
+    Notebook::resize((unsigned int) page);
+    notebook[(unsigned int) page].writeAt((unsigned int) row, (unsigned int) col, dir, toWrite);
 }
 
-void Notebook::erase(const unsigned int page, const unsigned int row, const unsigned int col, Direction dir, const unsigned int toErase) {
+void Notebook::erase(const int page, const int row, const int col, Direction dir, const int toErase) {
     Notebook::check_errors(page, row, col, dir, "", toErase, NotebookThrows::Erase);
-    Notebook::resize(page);
-    notebook[page].deleteAt(row, col, dir, toErase);
+    Notebook::resize((unsigned int) page);
+    notebook[(unsigned int) page].deleteAt((unsigned int)row, (unsigned int) col, dir, (unsigned int) toErase);
 }
 
-string Notebook::read(const unsigned int page, const unsigned int row, const unsigned int col, Direction dir, const unsigned int toRead) {
+string Notebook::read(const int page, const int row, const int col, Direction dir, const int toRead) {
     Notebook::check_errors(page, row, col, dir, "", toRead, NotebookThrows::Read);
-    Notebook::resize(page);
-    return notebook[page].readAt(row, col, dir, toRead);
+    Notebook::resize((unsigned int) page);
+    return notebook[(unsigned int) page].readAt((unsigned int) row, (unsigned int) col, dir, (unsigned int) toRead);
 }
 
-void Notebook::show(const unsigned int page) {
-    Page currentPage = notebook[page];
-    for (unsigned int i = 0; i < currentPage.size(); i++) {
-        cout << to_string(i) << ": " << currentPage.readAt(i, 0, Direction::Horizontal, MAXROWLENGTH) << endl;
+void Notebook::show(const int page) {
+    if (page < 0) {
+        throw out_of_range("Page must be greater or equal to 0");
+    }
+    if (notebook.size() <= page) {
+        cout << "Page number " << page << " is empty" << endl;
+        return;
+    }
+    Page currentPage = notebook[(unsigned int) page];
+    for (int i = 0; i < currentPage.size(); i++) {
+        cout << to_string(i) << ": " << currentPage.readAt((unsigned int) i, 0, Direction::Horizontal, MAXROWLENGTH) << endl;
     }
 }
 //--------------------------- End Class Notebook -----------------------------------

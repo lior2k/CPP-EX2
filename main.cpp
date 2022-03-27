@@ -1,5 +1,3 @@
-
-
 #include "sources/Notebook.hpp"
 #include "sources/Direction.hpp"
 using ariel::Direction;
@@ -93,4 +91,3 @@ int main() {
     }
 }
     
-
